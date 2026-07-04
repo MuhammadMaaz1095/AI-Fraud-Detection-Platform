@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelAI Intelligence Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+
+    <nav class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="h-7 w-7 rounded bg-cyan-500 flex items-center justify-center shadow shadow-cyan-500/20">
+                <i data-lucide="shield-alert" class="text-slate-950 w-4 h-4"></i>
+            </div>
+            <span class="text-lg font-bold tracking-tight text-slate-200">SENTINEL.AI PRO</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border border-slate-700 text-slate-400">PRODUCTION DECK</span>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                    <p class="text-[10px] font-mono uppercase text-slate-400 mb-1">Processed Evaluation Frames</p>
+                    <h3 id="metric-total" class="text-3xl font-bold">0</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl border-l-4 border-l-red-500">
+                    <p class="text-[10px] font-mono uppercase text-slate-400 mb-1">Flagged Fraud Footprints</p>
+                    <h3 id="metric-flagged" class="text-3xl font-bold text-red-400">0</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl border-l-4 border-l-cyan-500">
+                    <p class="text-[10px] font-mono uppercase text-slate-400 mb-1">Prevented Loss Interdiction</p>
+                    <h3 id="metric-loss" class="text-3xl font-bold text-cyan-400">$0.00</h3>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                <div class="p-4 border-b border-slate-800">
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <i data-lucide="activity" class="text-indigo-400 w-4 h-4"></i> System Stream Transaction Logs Matrix
+                    </h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-[11px] font-mono text-slate-400 border-b border-slate-800">
+                                <th class="p-3">TX ID Hash</th>
+                                <th class="p-3">Time Scale</th>
+                                <th class="p-3">Amount</th>
+                                <th class="p-3">Risk Ratio</th>
+                                <th class="p-3">Engine Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-rows" class="divide-y divide-slate-800/40 text-xs">
+                            <tr><td colspan="5" class="p-4 text-center text-slate-500 font-mono text-xs">Awaiting runtime data packets evaluation stream input from pool framework...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-xl">
+                <h2 class="text-sm font-semibold mb-1 flex items-center gap-2 text-cyan-400">
+                    <i data-lucide="play-circle" class="w-4 h-4"></i> Live Evaluation Pool
+                </h2>
+                <p class="text-xs text-slate-400 mb-4">Choose a transaction from the authentic Kaggle dataset pool.</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <select id="tx-select" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-cyan-500">
+                            </select>
+                    </div>
+                    <button id="evaluate-btn" class="w-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 font-bold py-2 rounded-lg text-xs transition hover:opacity-95 shadow">
+                        Process Frame Packet Row
+                    </button>
+                </div>
+            </div>
+
+            <div id="explainability-card" class="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-xl hidden">
+                <h2 class="text-sm font-semibold mb-1 flex items-center gap-2 text-purple-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i> SHAP Localization Vector
+                </h2>
+                <p class="text-[11px] text-slate-400 mb-3">Mathematical feature variance logs mapped directly against baseline models.</p>
+                
+                <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg mb-3">
+                    <p id="explain-reason" class="text-xs text-slate-300 leading-relaxed">Analyzing system breakdown factors...</p>
+                </div>
+
+                <div class="space-y-3" id="shap-bars">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000/api/v1";
+
+        async function initDataStream() {
+            try {
+                const res = await fetch(`${API_URL}/pool`);
+                if(!res.ok) throw new Error("Backend system verification mismatch status error.");
+                const records = await res.json();
+                const select = document.getElementById('tx-select');
+                select.innerHTML = "";
+                
+                records.forEach(item => {
+                    const profile = `Row ID: ${item.index} | Amount: $${item.amount.toFixed(2)} [True Dataset Target: ${item.actual_class === 1 ? '⚠️ FRAUD' : 'CLEAR'}]`;
+                    select.insertAdjacentHTML('beforeend', `<option value="${item.index}">${profile}</option>`);
+                });
+            } catch (err) {
+                console.error("Critical communications error targeting backend server architecture port:", err);
+            }
+        }
+
+        async function getDashboardData() {
+            const res = await fetch(`${API_URL}/dashboard`);
+            const data = await res.json();
+            
+            document.getElementById('metric-total').innerText = data.metrics.total_processed;
+            document.getElementById('metric-flagged').innerText = data.metrics.flagged_count;
+            document.getElementById('metric-loss').innerText = `$${data.metrics.total_prevented_loss.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            
+            const tbody = document.getElementById('ledger-rows');
+            if(data.recent_transactions.length === 0) return;
+            tbody.innerHTML = "";
+
+            data.recent_transactions.forEach(tx => {
+                const isFraud = tx.status === "FLAGGED";
+                const pillColor = isFraud ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-slate-800/20 transition cursor-pointer" onclick='renderSHAPView(${JSON.stringify(tx)})'>
+                        <td class="p-3 font-mono font-bold text-slate-400">${tx.id}</td>
+                        <td class="p-3 font-mono text-slate-400">${tx.time.toFixed(1)}s</td>
+                        <td class="p-3 font-semibold text-slate-200">$${tx.amount.toFixed(2)}</td>
+                        <td class="p-3 font-bold ${tx.risk_score > 50 ? 'text-red-400' : 'text-slate-300'}">${tx.risk_score}%</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-mono border ${pillColor}">${tx.status}</span></td>
+                    </tr>
+                `);
+            });
+        }
+
+        function renderSHAPView(tx) {
+            document.getElementById('explainability-card').classList.remove('hidden');
+            document.getElementById('explain-reason').innerText = tx.reason;
+            
+            const barsContainer = document.getElementById('shap-bars');
+            barsContainer.innerHTML = "";
+            
+            Object.entries(tx.shap_explanations).forEach(([feature, varianceVal]) => {
+                const calculatedWidth = Math.min(Math.abs(varianceVal) * 90, 100);
+                const themeBarColor = varianceVal >= 0 ? 'bg-red-500' : 'bg-emerald-500';
+                barsContainer.insertAdjacentHTML('beforeend', `
+                    <div>
+                        <div class="flex justify-between text-[11px] font-mono mb-0.5">
+                            <span class="text-slate-400">${feature}</span>
+                            <span class="${varianceVal >= 0 ? 'text-red-400' : 'text-emerald-400'}">${varianceVal >= 0 ? '+' : ''}${varianceVal.toFixed(4)}</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-1.5 rounded overflow-hidden border border-slate-800">
+                            <div class="${themeBarColor} h-full" style="width: ${calculatedWidth}%"></div>
+                        </div>
+                    </div>
+                `);
+            });
+            lucide.createIcons();
+        }
+
+        document.getElementById('evaluate-btn').addEventListener('click', async () => {
+            const chosenIndexValue = parseInt(document.getElementById('tx-select').value);
+            const responseFrameData = await fetch(`${API_URL}/score`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tx_index: chosenIndexValue})
+            });
+            const dataResult = await responseFrameData.json();
+            getDashboardData();
+            renderSHAPView(dataResult);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDataStream();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

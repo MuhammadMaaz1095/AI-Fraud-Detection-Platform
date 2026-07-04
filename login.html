@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelAI Portal Gate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <header class="p-6 flex justify-between items-center w-full max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+            <div class="h-6 w-6 rounded bg-cyan-500 flex items-center justify-center">
+                <i data-lucide="shield" class="text-slate-950 w-4 h-4"></i>
+            </div>
+            <span class="text-sm font-bold tracking-wider font-mono">SENTINEL.AI</span>
+        </div>
+    </header>
+
+    <main class="w-full max-w-md mx-auto p-6 my-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+            <div class="mb-6">
+                <h1 class="text-xl font-bold tracking-tight text-slate-100">SecOps Portal Gate</h1>
+                <p class="text-xs text-slate-400 mt-1">Authorized intelligence infrastructure system dashboard monitor panel layout access.</p>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-mono uppercase text-slate-400 mb-1">Operator System ID</label>
+                    <input type="text" required placeholder="OP-4401" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono uppercase text-slate-400 mb-1">Clearance Token String</label>
+                    <input type="password" required placeholder="••••••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800/60 p-3 rounded-lg flex items-center justify-between text-xs font-mono">
+                    <span class="text-slate-400">Environment Node Integrity</span>
+                    <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">VERIFIED</span>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 font-bold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:opacity-95 transition">
+                    Access System Terminal Panel
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="p-6 text-center text-[10px] font-mono text-slate-600">
+        © 2026 SentinelAI. Global Financial Risk and System Integrity Management Platform Operations.
+    </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = true;
+                btn.innerText = "Connecting Framework Pipeline Nodes...";
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
